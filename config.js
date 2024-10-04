@@ -19,9 +19,9 @@ global.PM_BLOCKER = false;
 global.CHATBOT = false;
 
 global.SESSION_ID = process.env.SESSION_ID || ""
-global.Owner = ["2349151864541"]; //like 2347080968564 
-global.OwnerName =  "Tᴀɪʀᴀ Mᴀᴋɪɴᴏ";
-global.BotName = "♱MAKINO-MD-V2♱♡⃤";
+global.Owner = ["255675104490"]; //like 2347080968564 
+global.OwnerName =  "DJ";
+global.BotName = "DJ_MEE";
 global.packname = "♱MAKINO-MD-V2♱♡⃤";                             //Do not change.
 global.author = "TAIRA MAKINO";                               //Do not change.
 global.BotSourceCode = "https://github.com/anonphoenix007/MAKINO-MD-V2"; //Do not change.
@@ -29,7 +29,7 @@ global.SupportGroupLink = "https://chat.whatsapp.com/DOVRqF006VHHZhiSNwJRce";
 global.SupportGroupLink = "https://chat.whatsapp.com/DOVRqF006VHHZhiSNwJRce"; //Do not change!
 global.menutype = "v3"
 
-global.prefa = ['','!','.',','] 
+global.prefa = ['/']
 
 //
 global.BotLogo = fs.readFileSync("./Assets/pic1.jpg");
